@@ -33,7 +33,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             Lab13Theme {
                 //AnimatedVisibilityExample()
-                AnimateColorExample()
+                //AnimateColorExample()
+                AnimateSizeAndPositionExample()
             }
         }
     }
@@ -99,6 +100,43 @@ fun AnimateColorExample() {
 
         Button(onClick = { isBlue = !isBlue }) {
             Text("Cambiar color")
+        }
+    }
+}
+
+@Composable
+fun AnimateSizeAndPositionExample() {
+    var expanded by remember { mutableStateOf(false) }
+
+    val boxSize by animateDpAsState(
+        targetValue = if (expanded) 200.dp else 100.dp,
+        animationSpec = tween(durationMillis = 600),
+        label = "sizeAnimation"
+    )
+
+    val offsetY by animateDpAsState(
+        targetValue = if (expanded) (-150).dp else 0.dp,
+        animationSpec = tween(durationMillis = 600),
+        label = "offsetY"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .offset(y = offsetY)
+                .size(boxSize)
+                .background(Color.Red)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = { expanded = !expanded }) {
+            Text("Animar cuadro")
         }
     }
 }
