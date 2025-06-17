@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -13,6 +14,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -34,7 +36,8 @@ class MainActivity : ComponentActivity() {
             Lab13Theme {
                 //AnimatedVisibilityExample()
                 //AnimateColorExample()
-                AnimateSizeAndPositionExample()
+                //AnimateSizeAndPositionExample()
+                AnimatedContentExample()
             }
         }
     }
@@ -140,5 +143,51 @@ fun AnimateSizeAndPositionExample() {
         }
     }
 }
+
+enum class UIState {
+    Cargando, Contenido, Error
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AnimatedContentExample() {
+    var currentState by remember { mutableStateOf(UIState.Cargando) }
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AnimatedContent(
+            targetState = currentState,
+            transitionSpec = {
+                fadeIn(tween(600)) with fadeOut(tween(600))
+            },
+            label = "stateTransition"
+        ) { state ->
+            when (state) {
+                UIState.Cargando -> Text("Cargando...", fontSize = 20.sp)
+                UIState.Contenido -> Text("¡Contenido cargado!", fontSize = 20.sp)
+                UIState.Error -> Text("Ocurrió un error.", fontSize = 20.sp, color = Color.Red)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(onClick = { currentState = UIState.Cargando }) {
+                Text("Cargando")
+            }
+            Button(onClick = { currentState = UIState.Contenido }) {
+                Text("Contenido")
+            }
+            Button(onClick = { currentState = UIState.Error }) {
+                Text("Error")
+            }
+        }
+    }
+}
+
+
 
 
