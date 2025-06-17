@@ -32,7 +32,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Lab13Theme {
-                AnimatedVisibilityExample()
+                //AnimatedVisibilityExample()
+                AnimateColorExample()
             }
         }
     }
@@ -66,4 +67,40 @@ fun AnimatedVisibilityExample() {
         }
     }
 }
+
+@Composable
+fun AnimateColorExample() {
+    var isBlue by remember { mutableStateOf(true) }
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isBlue) Color.Red else Color.Green,
+        //animationSpec = tween(durationMillis = 1000),  //tween
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,  //spring
+            stiffness = Spring.StiffnessLow
+        ), // animación suave de 1 segundo
+        label = "colorAnimation"
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.LightGray),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(150.dp)
+                .background(backgroundColor)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = { isBlue = !isBlue }) {
+            Text("Cambiar color")
+        }
+    }
+}
+
 
