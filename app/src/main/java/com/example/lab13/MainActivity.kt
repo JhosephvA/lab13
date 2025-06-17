@@ -16,9 +16,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,7 +39,8 @@ class MainActivity : ComponentActivity() {
                 //AnimatedVisibilityExample()
                 //AnimateColorExample()
                 //AnimateSizeAndPositionExample()
-                AnimatedContentExample()
+                //AnimatedContentExample()
+                AnimacionesCombinadasExample()
             }
         }
     }
@@ -187,6 +190,105 @@ fun AnimatedContentExample() {
         }
     }
 }
+
+enum class Modo {
+    Claro, Oscuro
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AnimacionesCombinadasExample() {
+    var expandido by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(true) }
+    var modo by remember { mutableStateOf(Modo.Claro) }
+
+    // Tamaño y color animados
+    val size by animateDpAsState(
+        targetValue = if (expandido) 200.dp else 100.dp,
+        animationSpec = tween(500),
+        label = "sizeAnimation"
+    )
+    val color by animateColorAsState(
+        targetValue = if (expandido) Color.Magenta else Color.Cyan,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "colorAnimation"
+    )
+
+    // Offset animado para el botón
+    val offsetX by animateDpAsState(
+        targetValue = if (visible) 0.dp else 200.dp,
+        animationSpec = tween(500),
+        label = "offsetButton"
+    )
+
+    // Fondo según modo
+    val backgroundColor = if (modo == Modo.Claro) Color.White else Color.Black
+    val textColor = if (modo == Modo.Claro) Color.Black else Color.White
+
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor),
+        color = Color.Transparent
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 🔷 Elemento con animación de tamaño y color
+            Box(
+                modifier = Modifier
+                    .size(size)
+                    .background(color)
+                    .clickable { expandido = !expandido }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 🔘 Botón animado con desplazamiento y visibilidad
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(tween(400)),
+                exit = fadeOut(tween(400))
+            ) {
+                Button(
+                    modifier = Modifier.offset(x = offsetX),
+                    onClick = { visible = false }
+                ) {
+                    Text("Desaparecer")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 🔄 Transición de contenido: modo claro/oscuro
+            AnimatedContent(
+                targetState = modo,
+                transitionSpec = {
+                    fadeIn(tween(600)) with fadeOut(tween(600))
+                },
+                label = "modoAnimation"
+            ) { currentModo ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = if (currentModo == Modo.Claro) "Modo Claro" else "Modo Oscuro",
+                        fontSize = 20.sp,
+                        color = textColor
+                    )
+                    Button(
+                        onClick = {
+                            modo = if (modo == Modo.Claro) Modo.Oscuro else Modo.Claro
+                        }
+                    ) {
+                        Text("Cambiar modo")
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 
 
